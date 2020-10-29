@@ -8,10 +8,10 @@ from flask import Flask, render_template, make_response,jsonify,request
 #from flask_cors import CORS
 #from 'c:\users\louis\appdata\local\programs\python\python38-32\lib\site-packages\flask_cors' import CORS
 
-import CORS
+#from flask.ext.cors import CORS 
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 #app = Flask(__name__, static_folder="static", static_url_path='')
 a={'first':3,'second':4}
@@ -21,13 +21,14 @@ a={'first':3,'second':4}
 
 def _build_cors_prelight_response():
     response = make_response()
-    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add('Access-Control-Allow-Origin', "*")
     response.headers.add('Access-Control-Allow-Headers', "*")
     response.headers.add('Access-Control-Allow-Methods', "*")
     return response
 
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
+    print(request.data)
     return response
 
 
@@ -46,6 +47,15 @@ def somethingelse():
         return _build_cors_prelight_response()
     if request.method == "GET":
         return _corsify_actual_response(jsonify(a))
+
+@app.route('/testpagepost', methods = ['POST'])
+def somethingelse2():
+    if request.method == "OPTIONS":
+        return _build_cors_prelight_response()
+    if request.method == "POST":
+        return _corsify_actual_response(jsonify(a))
+    
+
 
 
 
