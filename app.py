@@ -48,6 +48,7 @@ residualSolids4=0
 
 
 
+
 def do_calculations():
     #ensure spintimes are provided as number of minutes
     
@@ -62,20 +63,16 @@ def do_calculations():
     for time in spintimes:
         temp=DT.datetime.strptime(time,'%M:%S')
         time_in_minutes=(temp-refTime).total_seconds()/60
-        print("Type of each time_in_minutes")
-        print(type(time_in_minutes))
         spintimes_min.append(time_in_minutes)
         
         
-    print("Before reformatting time array:")
-    print(spintimes)
-    print("After reformatting time array:")
-    print(spintimes_min)
+
     #remember to add TempSpinTest and Needed Q to below call once they have been added to form.
         
         
-    spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity)
-    print("Got here!")
+    spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
+                                            densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity,\
+                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest)
     print(spintest_object)
     return
 
@@ -101,13 +98,12 @@ def _process_fluid_properties(response):
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
    # print(incomingData)
-    _generate_results()
    
 
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
     save_fluid_properties(incomingData)
-
+    do_calculations()
     return response
 
 def save_fluid_properties(incomingData):
