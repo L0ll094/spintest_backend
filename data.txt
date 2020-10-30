@@ -1,0 +1,1 @@
+{"spinTimes": [2, 4, 8, 16], "Nstart": [1, 2, 3, 4], "residualSol": [0.38, 0.22, 0.1, 0.04], "speeds": [1400, 1400, 1400, 1400], "densityfeed": 900, "densityparticle": 1000, "kinviscosity": 10, "neededQ": 100, "tempSpinTest": 20}
