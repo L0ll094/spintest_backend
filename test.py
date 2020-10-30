@@ -1,4 +1,13 @@
 a={'first':3,'second':4}
 print(a['first'])
 print(a.values())
+print("The keys are")
 print(a.keys())
+print("Of type")
+print(type(a.keys()))
+The_keys=a.keys()
+list_of_keys=list(The_keys)
+print(type(list_of_keys))
+print("CAn I access the values using the indexes of the list of key values?")
+print(a[list_of_keys[0]])
+print("YES")
