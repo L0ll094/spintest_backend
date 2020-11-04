@@ -23,6 +23,35 @@ V2=0
 L1=0
 L2=0
 
+Acc_t_1=0
+Acc_t_2=0
+Acc_t_3=0
+Acc_t_4=0
+Acc_t_5=0
+Acc_t_6=0
+
+Acc_rpm_1=0
+Acc_rpm_2=0
+Acc_rpm_3=0
+Acc_rpm_4=0
+Acc_rpm_5=0
+Acc_rpm_6=0
+
+Ret_t_1=0
+Ret_t_2=0
+Ret_t_3=0
+Ret_t_4=0
+Ret_t_5=0
+Ret_t_6=0
+
+Ret_rpm_1=0
+Ret_rpm_2=0
+Ret_rpm_3=0
+Ret_rpm_4=0
+Ret_rpm_5=0
+Ret_rpm_6=0 
+
+
 
 #Spintest Data
 Nstart1=0
@@ -103,7 +132,7 @@ def _process_fluid_properties(response):
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
     save_fluid_properties(incomingData)
-    do_calculations()
+    
     return response
 
 def save_fluid_properties(incomingData):
@@ -137,6 +166,35 @@ def save_equipment_properties(incomingData):
     global V2
     global L1
     global L2
+    global Acc_t_1
+    global Acc_t_2
+    global Acc_t_3
+    global Acc_t_4
+    global Acc_t_5
+    global Acc_t_6
+    
+    global Acc_rpm_1
+    global Acc_rpm_2
+    global Acc_rpm_3
+    global Acc_rpm_4
+    global Acc_rpm_5
+    global Acc_rpm_6
+    
+    global Ret_t_1
+    global Ret_t_2
+    global Ret_t_3
+    global Ret_t_4
+    global Ret_t_5
+    global Ret_t_6
+    
+    global Ret_rpm_1
+    global Ret_rpm_2
+    global Ret_rpm_3
+    global Ret_rpm_4
+    global Ret_rpm_5
+    global Ret_rpm_6 
+    
+    
 
     Rcentrifuge=incomingData[list_of_the_keys[0]]
     
@@ -144,6 +202,34 @@ def save_equipment_properties(incomingData):
     V2=incomingData[list_of_the_keys[2]]
     L1=incomingData[list_of_the_keys[3]]
     L2=incomingData[list_of_the_keys[4]]
+    Acc_t_1=incomingData[list_of_the_keys[5]]
+    Acc_t_2=incomingData[list_of_the_keys[6]]
+    Acc_t_3=incomingData[list_of_the_keys[7]]
+    Acc_t_4=incomingData[list_of_the_keys[8]]
+    Acc_t_5=incomingData[list_of_the_keys[9]]
+    Acc_t_6=incomingData[list_of_the_keys[10]]
+    
+    Acc_rpm_1=incomingData[list_of_the_keys[11]]
+    Acc_rpm_2=incomingData[list_of_the_keys[12]]
+    Acc_rpm_3=incomingData[list_of_the_keys[13]]
+    Acc_rpm_4=incomingData[list_of_the_keys[14]]
+    Acc_rpm_5=incomingData[list_of_the_keys[15]]
+    Acc_rpm_6=incomingData[list_of_the_keys[16]]
+    
+    Ret_t_1=incomingData[list_of_the_keys[17]]
+    Ret_t_2=incomingData[list_of_the_keys[18]]
+    Ret_t_3=incomingData[list_of_the_keys[19]]
+    Ret_t_4=incomingData[list_of_the_keys[20]]
+    Ret_t_5=incomingData[list_of_the_keys[21]]
+    Ret_t_6=incomingData[list_of_the_keys[22]]
+    
+    Ret_rpm_1=incomingData[list_of_the_keys[23]]
+    Ret_rpm_2=incomingData[list_of_the_keys[24]]
+    Ret_rpm_3=incomingData[list_of_the_keys[25]]
+    Ret_rpm_4=incomingData[list_of_the_keys[26]]
+    Ret_rpm_5=incomingData[list_of_the_keys[27]]
+    Ret_rpm_6=incomingData[list_of_the_keys[28]] 
+    print(incomingData)
 
     return
 
@@ -156,6 +242,7 @@ def _process_spintest_data(response):
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
     save_spintest_data(incomingData)
+    do_calculations()
     return response
     
 
@@ -188,30 +275,23 @@ def save_spintest_data(incomingData):
     
   
     spintime1=incomingData[list_of_the_keys[0]]
-    print(spintime1)
-    print(type(spintime1))
     spintime2=incomingData[list_of_the_keys[1]]
     spintime3=incomingData[list_of_the_keys[2]]
     spintime4=incomingData[list_of_the_keys[3]]
     
     Nstart1=incomingData[list_of_the_keys[4]]
-    print(Nstart1)
-    print(type(Nstart1))
+
     Nstart2=incomingData[list_of_the_keys[5]]
     Nstart3=incomingData[list_of_the_keys[6]]
     Nstart4=incomingData[list_of_the_keys[7]]
 
 
     speed1=incomingData[list_of_the_keys[8]]
-    print(speed1)
-    print(type(speed1))
     speed2=incomingData[list_of_the_keys[9]]
     speed3=incomingData[list_of_the_keys[10]]
     speed4=incomingData[list_of_the_keys[11]]
 
     residualSolids1=incomingData[list_of_the_keys[12]]
-    print(residualSolids1)
-    print(type(residualSolids1))
     residualSolids2=incomingData[list_of_the_keys[13]]
     residualSolids3=incomingData[list_of_the_keys[14]]
     residualSolids4=incomingData[list_of_the_keys[15]]
