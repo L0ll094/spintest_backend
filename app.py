@@ -1,7 +1,7 @@
 import datetime as DT
 import requests
 import SpinTest.SpinTestClass as spintestModule
-import SpinTest.test as importedModule #for testing purposes
+#import SpinTest.test as importedModule #for testing purposes
 from flask import Flask, render_template, make_response,jsonify,request
 #Added this comment from company laptop to test if shit works
 
@@ -9,8 +9,11 @@ app = Flask(__name__)
 
 a={'first':3,'second':4}
 
-#Preparing containers to store incoming data. None of these should be 0, so if they're sent to python as 0 
+#Preparing containers to store incoming data.
+#This is not needed, but is done for the next person looking at this code, to make it more understandable.
+#None of these should be 0, so if they're sent to python as 0 
 #we know something's wrong.
+
 #Fluid properties
 densityParticle=0
 densityFeed=0
@@ -78,32 +81,6 @@ residualSolids4=0
 
 
 
-def do_calculations():
-    #ensure spintimes are provided as number of minutes
-    
-    spintimes=[spintime1, spintime2, spintime3,spintime4]
-    Nstarts=[Nstart1,Nstart2,Nstart3,Nstart4]
-    Speeds=[speed1,speed2,speed3,speed4]
-    ResidualSolids=[residualSolids1,residualSolids2,residualSolids3,residualSolids4]
-    
-    spintimes_min=[]
-    refTime=DT.datetime(1900,1,1)
-    print("\n\n\n\n")
-    for time in spintimes:
-        temp=DT.datetime.strptime(time,'%M:%S')
-        time_in_minutes=(temp-refTime).total_seconds()/60
-        spintimes_min.append(time_in_minutes)
-        
-        
-
-    #remember to add TempSpinTest and Needed Q to below call once they have been added to form.
-        
-        
-    spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
-                                            densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity,\
-                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest)
-    print(spintest_object)
-    return
 
 
 
@@ -131,11 +108,7 @@ def _process_fluid_properties(response):
 
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
-    save_fluid_properties(incomingData)
     
-    return response
-
-def save_fluid_properties(incomingData):
     list_of_the_keys=list(incomingData.keys())
     global densityParticle
     global densityFeed
@@ -144,7 +117,8 @@ def save_fluid_properties(incomingData):
     densityFeed=incomingData[list_of_the_keys[1]]
     kinViscosity=incomingData[list_of_the_keys[2]]
     
-
+    return response
+    
 
 
 
@@ -155,10 +129,6 @@ def _process_equipment_properties(response):
     #print(incomingData)
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
-    save_equipment_properties(incomingData)
-    return response
-
-def save_equipment_properties(incomingData):
     list_of_the_keys=list(incomingData.keys())
     
     global Rcentrifuge
@@ -231,7 +201,7 @@ def save_equipment_properties(incomingData):
     Ret_rpm_6=incomingData[list_of_the_keys[28]] 
     print(incomingData)
 
-    return
+    return response
 
 def _process_spintest_data(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -241,12 +211,7 @@ def _process_spintest_data(response):
 
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
-    save_spintest_data(incomingData)
-    do_calculations()
-    return response
-    
 
-def save_spintest_data(incomingData):
     list_of_the_keys=list(incomingData.keys())
 
     global Nstart1
@@ -298,15 +263,41 @@ def save_spintest_data(incomingData):
 
     TempSpinTest=incomingData[list_of_the_keys[16]]
     NeededQ=incomingData[list_of_the_keys[17]]
-    return
+    return response
 
 
 
 def _generate_results():
-    do_calculations()
-    
-    return
 
+    
+    
+    spintimes=[spintime1, spintime2, spintime3,spintime4]
+    Nstarts=[Nstart1,Nstart2,Nstart3,Nstart4]
+    Speeds=[speed1,speed2,speed3,speed4]
+    ResidualSolids=[residualSolids1,residualSolids2,residualSolids3,residualSolids4]
+    AccTable=[[Acc_rpm_1, Acc_rpm_2, Acc_rpm_3, Acc_rpm_4, Acc_rpm_5, Acc_rpm_6],[Acc_t_1, Acc_t_2, Acc_t_3, Acc_t_4, Acc_t_5, Acc_t_6]]
+    RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Ret_t_1, Ret_t_2, Ret_t_3, Ret_t_4, Ret_t_5, Ret_t_6]]
+    
+    #ensure spintimes are provided as number of minutes
+    spintimes_min=[]
+    refTime=DT.datetime(1900,1,1)
+    print("\n\n\n\n")
+    for time in spintimes:
+        temp=DT.datetime.strptime(time,'%M:%S')
+        time_in_minutes=(temp-refTime).total_seconds()/60
+        spintimes_min.append(time_in_minutes)
+        
+        
+
+    #remember to add TempSpinTest and Needed Q to below call once they have been added to form.
+        
+        
+    spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
+                                            densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity,\
+                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest,\
+                                            accelTab=AccTable, retardTab=RetTable)
+    print(spintest_object)
+    return
 
 
 #routes and what happens when you send a request to them
