@@ -455,7 +455,7 @@ def calculate_spintimes():
     rec_spintimes=local_spintest_object.getSpinTimes(Q=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
     
     
-    outdata=[rec_spintimes]
+    outdata={"Recommended_spintimes":rec_spintimes}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /calculate_spintimes:")
