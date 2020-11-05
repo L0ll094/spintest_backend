@@ -3,6 +3,7 @@ import requests
 import SpinTest.SpinTestClass as spintestModule
 #import SpinTest.test as importedModule #for testing purposes
 from flask import Flask, make_response,jsonify,request,json
+import pdb
 #Added this comment from company laptop to test if shit works
 
 app = Flask(__name__)
@@ -333,7 +334,7 @@ def find_flowrate():
     outdata={'The Flows':theQ}
     global theAnswer
     theAnswer=json.dumps(outdata)
-    print("Sent back to frontend:")
+    print("Sent back to frontend from /find_flowrate:")
     print(theAnswer)
 
     return 
@@ -344,9 +345,9 @@ def fulfill_criteria():
     #For testing purposes:
     local_spintest_object=spintestModule.SpinTest()
     
-    #incomingData=request.get_json(force=True)
+    incomingData=request.get_json(force=True)
     #For testing purposes:
-    incomingData={'TheCriteria':0.23,'theVectorOfKQ':[150,250,350,450],'DesiredQ':60}
+    #incomingData={'TheCriteria':0.23,'theVectorOfKQ':[150,250,350,450],'DesiredQ':60}
     
     
     
@@ -355,22 +356,30 @@ def fulfill_criteria():
     #can pass desiredQ,KQ or Ae and Criteria
     _criteria=incomingData[list_of_the_keys[0]]
     KQ=incomingData[list_of_the_keys[1]]
-    vector_of_KQ=[KQ-200,KQ-100,KQ,KQ+100,KQ+200]
-    desiredQ=incomingData[list_of_the_keys[2]]
+    
+ 
+    if(KQ==None):
+        vector_of_KQ=[100,200,300,400]
+    else:
+        vector_of_KQ=[KQ*0.1,KQ*0.5,KQ,KQ*1.5,KQ*2]
+    
+
+  
+
 
 
     LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
+    LF=LF*3600
+    
+    for i in range(0,len(Qmax)):
+        Qmax[i]=Qmax[i]*3600
     
     outdata={'LF':LF,'Qmax':Qmax,'KQ':KQ}
     global theAnswer
     theAnswer=json.dumps(outdata)
-    print("Sent back to frontend:")
+    print("Sent back to frontend from /fulfill_criteria:")
     print(theAnswer)
 
-    print("Sent back to frontend:")
-    print(LF)
-    print(Qmax)
-    print(KQ)
     
     
     return
@@ -379,32 +388,37 @@ def find_capacity():
     #local_spintest_object=create_spintest_object()
     #For testing purposes:
     local_spintest_object=spintestModule.SpinTest()
+
     
-    #incomingData=request.get_json(force=True)
+    incomingData=request.get_json(force=True)
     #For testing purposes:
-    incomingData={'Approx. eff.':0.23,'DesiredQ':60}
+    #incomingData={'Approx. eff.':0.23,'DesiredQ':60}
     
     
     list_of_the_keys=list(incomingData.keys())
     #can pass desiredQ,KQ or Ae and Criteria
-    approximate_efficiency=incomingData[list_of_the_keys[0]]
-    desiredQ=incomingData[list_of_the_keys[1]]
+    desiredQ=incomingData[list_of_the_keys[0]]
+    effluent_conc1=incomingData[list_of_the_keys[1]]
+    effluent_conc2=incomingData[list_of_the_keys[2]]
     
+    effluent_conc_mid=(effluent_conc1+effluent_conc2)/2
     
-    low_eff=approximate_efficiency*0.5;
-    high_eff=approximate_efficiency*1.5;
+
     
-    LF_low,temp,KQ_low=local_spintest_object.resSolCrit(criteria=low_eff,Qdesired=desiredQ)
-    LF,temp,KQ=local_spintest_object.resSolCrit(criteria=approximate_efficiency,Qdesired=desiredQ)
-    LF_high,temp,KQ_high=local_spintest_object.resSolCrit(criteria=high_eff,Qdesired=desiredQ)
+    LF_1,temp,KQ_1=local_spintest_object.resSolCrit(criteria=effluent_conc1,Qdesired=desiredQ)
+    LF_1=LF_1*3600
+    LF,temp,KQ=local_spintest_object.resSolCrit(criteria=effluent_conc_mid,Qdesired=desiredQ)
+    LF=LF*3600
+    LF_2,temp,KQ_2=local_spintest_object.resSolCrit(criteria=effluent_conc2,Qdesired=desiredQ)
+    LF_2=LF_2*3600
     
-    print(LF_low,LF,LF_high)
-    print(KQ_low,KQ.KQ_high)
+    print(LF_1,LF,LF_2)
+    print(KQ_1,KQ,KQ_2)
     
-    outdata={'LF_low':LF_low,'LF':LF,'LF_high':LF_high,'KQ_low':KQ_low,'KQ':KQ,'KQ_high':KQ_high}
+    outdata={'LF_1':LF_1,'LF':LF,'LF_2':LF_2,'KQ_1':KQ_1,'KQ':KQ,'KQ_2':KQ_2}
     global theAnswer
     theAnswer=json.dumps(outdata)
-    print("Sent back to frontend:")
+    print("Sent back to frontend from /find_capacity:")
     print(theAnswer)
 
     return
@@ -416,9 +430,9 @@ def calculate_spintimes():
     #For testing purposes:
     local_spintest_object=spintestModule.SpinTest()
     
-    #incomingData=request.get_json(force=True)
+    incomingData=request.get_json(force=True)
     #For testing purposes:
-    incomingData={'KQ':0.23,'Large_flow':120,'Small_flow':60}
+
     
     
     list_of_the_keys=list(incomingData.keys())
@@ -444,6 +458,7 @@ def calculate_spintimes():
     outdata=[rec_spintimes]
     global theAnswer
     theAnswer=json.dumps(outdata)
+    print("Sent back to frontend from /calculate_spintimes:")
     print(theAnswer)
     
     
@@ -510,7 +525,7 @@ def respond_with_results2():
         return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/find_capacity',methods=['POST'])
-def respond_with_results2():
+def respond_with_results3():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
@@ -520,7 +535,7 @@ def respond_with_results2():
         return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/calculate_spintimes',methods=['POST'])
-def respond_with_results2():
+def respond_with_results4():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
