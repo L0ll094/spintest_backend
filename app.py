@@ -304,7 +304,7 @@ def create_spintest_object():
     return local_spintest_object
 
 def addHeadersToResponse(response):
-    #This is run after thaAnswer have been updated by the find_KQ_or_Ae function
+    #This is run after thaAnswer have been updated by the find_flowrate function
     #so that the response is something useful and not just the default value of theAnswer
     response.headers.add("Access-Control-Allow-Origin", "*")
     
@@ -312,7 +312,7 @@ def addHeadersToResponse(response):
     
     
 
-def find_KQ_or_Ae():
+def find_flowrate():
   
     #local_spintest_object=create_spintest_object()
     
@@ -321,21 +321,19 @@ def find_KQ_or_Ae():
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
-    desiredQ=incomingData[list_of_the_keys[0]]
-    #The Q should be passed in SI units to get the correct Ae out
-    desiredQ=desiredQ/3600
+    _KQ=incomingData[list_of_the_keys[0]]
+     
+
+    theQ=local_spintest_object.calcQ(KQ=_KQ)
     
-    #Expect a small JSON containing just desired Q
-    theAe=local_spintest_object.calcAe(desiredQ)
-    theKQ=local_spintest_object.calcKQ(desiredQ)
-    
-    print("Ran find KQ function")
+    print("Ran find Q function")
     print(local_spintest_object.residualSol)
-    print(theAe)
+    print(theQ)
     
-    outdata=[theAe,theKQ]
+    outdata={'The Flows':theQ}
     global theAnswer
     theAnswer=json.dumps(outdata)
+    print("Sent back to frontend:")
     print(theAnswer)
 
     return 
@@ -359,10 +357,22 @@ def fulfill_criteria():
     KQ=incomingData[list_of_the_keys[1]]
     vector_of_KQ=[KQ-200,KQ-100,KQ,KQ+100,KQ+200]
     desiredQ=incomingData[list_of_the_keys[2]]
-    print(_criteria)
-    print(vector_of_KQ)
-    print(desiredQ)
+
+
     LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
+    
+    outdata={'LF':LF,'Qmax':Qmax,'KQ':KQ}
+    global theAnswer
+    theAnswer=json.dumps(outdata)
+    print("Sent back to frontend:")
+    print(theAnswer)
+
+    print("Sent back to frontend:")
+    print(LF)
+    print(Qmax)
+    print(KQ)
+    
+    
     return
 
 def find_capacity():
@@ -391,9 +401,10 @@ def find_capacity():
     print(LF_low,LF,LF_high)
     print(KQ_low,KQ.KQ_high)
     
-    outdata={'LF_low':LF_low,'LF':LF,LF_high,KQ_low,KQ.KQ_high]
+    outdata={'LF_low':LF_low,'LF':LF,'LF_high':LF_high,'KQ_low':KQ_low,'KQ':KQ,'KQ_high':KQ_high}
     global theAnswer
     theAnswer=json.dumps(outdata)
+    print("Sent back to frontend:")
     print(theAnswer)
 
     return
@@ -477,14 +488,14 @@ def respond_to_spintest_data():
         #Nope doesn't work we need it, but it is now just added to my other processing.
         return _process_spintest_data(jsonify(theAnswer))
     
-@app.route('/find_KQ_or_Ae',methods=['POST'])
+@app.route('/find_flowrate',methods=['POST'])
 def respond_with_results():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it, but it is now just added to my other processing.
-        find_KQ_or_Ae()
+        find_flowrate()
         return addHeadersToResponse(jsonify(theAnswer))
 
 
