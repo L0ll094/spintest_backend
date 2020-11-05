@@ -2,12 +2,12 @@ import datetime as DT
 import requests
 import SpinTest.SpinTestClass as spintestModule
 #import SpinTest.test as importedModule #for testing purposes
-from flask import Flask, render_template, make_response,jsonify,request
+from flask import Flask, make_response,jsonify,request,json
 #Added this comment from company laptop to test if shit works
 
 app = Flask(__name__)
 
-a={'first':3,'second':4}
+theAnswer={'first':3,'second':4}
 
 #Preparing containers to store incoming data.
 #This is not needed, but is done for the next person looking at this code, to make it more understandable.
@@ -76,9 +76,7 @@ residualSolids2=0
 residualSolids3=0
 residualSolids4=0
 
-
-
-
+setup_has_been_completed=False
 
 
 
@@ -267,7 +265,7 @@ def _process_spintest_data(response):
 
 
 
-def _generate_results():
+def create_spintest_object():
 
     
     
@@ -292,12 +290,57 @@ def _generate_results():
     #remember to add TempSpinTest and Needed Q to below call once they have been added to form.
         
         
-    spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
+    local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
                                             densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity,\
                                             L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest,\
                                             accelTab=AccTable, retardTab=RetTable)
-    print(spintest_object)
-    return
+    
+    global setup_has_been_completed
+    setup_has_been_completed=True
+
+    print(local_spintest_object)
+    
+    
+    return local_spintest_object
+
+def passKQorAeToFrontend(response):
+    #This is run after thaAnswer have been updated by the find_KQ_or_Ae function
+    #so that the response is something useful and not just the default value of theAnswer
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    
+    return response
+    
+    
+
+def find_KQ_or_Ae():
+  
+    #local_spintest_object=create_spintest_object()
+    
+    #For testing purposes:
+    local_spintest_object=spintestModule.SpinTest()
+    
+    incomingData=request.get_json(force=True)
+    list_of_the_keys=list(incomingData.keys())
+    desiredQ=incomingData[list_of_the_keys[0]]
+    #The Q should be passed in SI units to get the correct Ae out
+    desiredQ=desiredQ/3600
+    
+    #Expect a small JSON containing just desired Q
+    theAe=local_spintest_object.calcAe(desiredQ)
+    theKQ=local_spintest_object.calcKQ(desiredQ)
+    outdata=[theAe,theKQ]
+    
+
+    print("Ran find KQ function")
+    print(local_spintest_object.residualSol)
+    print(theAe)
+    global theAnswer
+    theAnswer=json.dumps(outdata)
+    print(theAnswer)
+
+    return 
+    
+    
 
 
 #routes and what happens when you send a request to them
@@ -314,7 +357,7 @@ def respond_to_fluid_properties():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it.
-        return _process_fluid_properties(jsonify(a))
+        return _process_fluid_properties(jsonify(theAnswer))
     
 @app.route('/send_equipment_properties', methods = ['POST'])
 def respond_to_equipment_properties():
@@ -323,7 +366,7 @@ def respond_to_equipment_properties():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it.
-        return _process_equipment_properties(jsonify(a))
+        return _process_equipment_properties(jsonify(theAnswer))
 
    
 @app.route('/send_spintest_data', methods = ['POST'])
@@ -333,11 +376,18 @@ def respond_to_spintest_data():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it, but it is now just added to my other processing.
-        return _process_spintest_data(jsonify(a))
+        return _process_spintest_data(jsonify(theAnswer))
     
-@app.route('/fetch_results',methods=['GET'])
+@app.route('/find_KQ_or_Ae',methods=['POST'])
 def respond_with_results():
-    return _generate_results()
+    if request.method == "OPTIONS":
+        return _build_cors_preflight_response()
+    if request.method == "POST":
+        #It seems to only go post never options anymore. Shall try to do without the corsify
+        #Nope doesn't work we need it, but it is now just added to my other processing.
+        find_KQ_or_Ae()
+        return passKQorAeToFrontend(jsonify(theAnswer))
+
 
 
 

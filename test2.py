@@ -1,4 +1,6 @@
-import SpinTest.test as importedModule
 
-fakeClass_object=importedModule.fakeClass()
-print(fakeClass_object.giveName())
+from flask import Flask, render_template, make_response,jsonify
+
+A=[2,1,2,3,4]
+B=jsonify(A)
+print(B)
