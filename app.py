@@ -303,7 +303,7 @@ def create_spintest_object():
     
     return local_spintest_object
 
-def passKQorAeToFrontend(response):
+def addHeadersToResponse(response):
     #This is run after thaAnswer have been updated by the find_KQ_or_Ae function
     #so that the response is something useful and not just the default value of theAnswer
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -328,17 +328,116 @@ def find_KQ_or_Ae():
     #Expect a small JSON containing just desired Q
     theAe=local_spintest_object.calcAe(desiredQ)
     theKQ=local_spintest_object.calcKQ(desiredQ)
-    outdata=[theAe,theKQ]
     
-
     print("Ran find KQ function")
     print(local_spintest_object.residualSol)
     print(theAe)
+    
+    outdata=[theAe,theKQ]
     global theAnswer
     theAnswer=json.dumps(outdata)
     print(theAnswer)
 
     return 
+    
+def fulfill_criteria():
+      
+    #local_spintest_object=create_spintest_object()
+    #For testing purposes:
+    local_spintest_object=spintestModule.SpinTest()
+    
+    #incomingData=request.get_json(force=True)
+    #For testing purposes:
+    incomingData={'TheCriteria':0.23,'theVectorOfKQ':[150,250,350,450],'DesiredQ':60}
+    
+    
+    
+    
+    list_of_the_keys=list(incomingData.keys())
+    #can pass desiredQ,KQ or Ae and Criteria
+    _criteria=incomingData[list_of_the_keys[0]]
+    KQ=incomingData[list_of_the_keys[1]]
+    vector_of_KQ=[KQ-200,KQ-100,KQ,KQ+100,KQ+200]
+    desiredQ=incomingData[list_of_the_keys[2]]
+    print(_criteria)
+    print(vector_of_KQ)
+    print(desiredQ)
+    LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
+    return
+
+def find_capacity():
+    #local_spintest_object=create_spintest_object()
+    #For testing purposes:
+    local_spintest_object=spintestModule.SpinTest()
+    
+    #incomingData=request.get_json(force=True)
+    #For testing purposes:
+    incomingData={'Approx. eff.':0.23,'DesiredQ':60}
+    
+    
+    list_of_the_keys=list(incomingData.keys())
+    #can pass desiredQ,KQ or Ae and Criteria
+    approximate_efficiency=incomingData[list_of_the_keys[0]]
+    desiredQ=incomingData[list_of_the_keys[1]]
+    
+    
+    low_eff=approximate_efficiency*0.5;
+    high_eff=approximate_efficiency*1.5;
+    
+    LF_low,temp,KQ_low=local_spintest_object.resSolCrit(criteria=low_eff,Qdesired=desiredQ)
+    LF,temp,KQ=local_spintest_object.resSolCrit(criteria=approximate_efficiency,Qdesired=desiredQ)
+    LF_high,temp,KQ_high=local_spintest_object.resSolCrit(criteria=high_eff,Qdesired=desiredQ)
+    
+    print(LF_low,LF,LF_high)
+    print(KQ_low,KQ.KQ_high)
+    
+    outdata={'LF_low':LF_low,'LF':LF,LF_high,KQ_low,KQ.KQ_high]
+    global theAnswer
+    theAnswer=json.dumps(outdata)
+    print(theAnswer)
+
+    return
+
+
+def calculate_spintimes():
+    
+    #local_spintest_object=create_spintest_object()
+    #For testing purposes:
+    local_spintest_object=spintestModule.SpinTest()
+    
+    #incomingData=request.get_json(force=True)
+    #For testing purposes:
+    incomingData={'KQ':0.23,'Large_flow':120,'Small_flow':60}
+    
+    
+    list_of_the_keys=list(incomingData.keys())
+    #can pass desiredQ,KQ or Ae and Criteria
+    KQ=incomingData[list_of_the_keys[0]]
+    Flow1=incomingData[list_of_the_keys[1]]
+    Flow4=incomingData[list_of_the_keys[2]]
+    SpinningSpeed=incomingData[list_of_the_keys[3]]
+    
+    Flow2=Flow1+((Flow4-Flow1)/3)
+    Flow3=Flow1+(2*(Flow4-Flow1)/3)
+    
+    Flows=[Flow1,Flow2,Flow3,Flow4]
+    
+    
+    
+    
+    
+    
+    rec_spintimes=local_spintest_object.getSpinTimes(Q=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
+    
+    
+    outdata=[rec_spintimes]
+    global theAnswer
+    theAnswer=json.dumps(outdata)
+    print(theAnswer)
+    
+    
+    return
+
     
     
 
@@ -386,7 +485,40 @@ def respond_with_results():
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it, but it is now just added to my other processing.
         find_KQ_or_Ae()
-        return passKQorAeToFrontend(jsonify(theAnswer))
+        return addHeadersToResponse(jsonify(theAnswer))
+
+
+@app.route('/fulfill_criteria',methods=['POST'])
+def respond_with_results2():
+    if request.method == "OPTIONS":
+        return _build_cors_preflight_response()
+    if request.method == "POST":
+        #It seems to only go post never options anymore. Shall try to do without the corsify
+        #Nope doesn't work we need it, but it is now just added to my other processing.
+        fulfill_criteria()
+        return addHeadersToResponse(jsonify(theAnswer))
+    
+@app.route('/find_capacity',methods=['POST'])
+def respond_with_results2():
+    if request.method == "OPTIONS":
+        return _build_cors_preflight_response()
+    if request.method == "POST":
+        #It seems to only go post never options anymore. Shall try to do without the corsify
+        #Nope doesn't work we need it, but it is now just added to my other processing.
+        find_capacity()
+        return addHeadersToResponse(jsonify(theAnswer))
+    
+@app.route('/calculate_spintimes',methods=['POST'])
+def respond_with_results2():
+    if request.method == "OPTIONS":
+        return _build_cors_preflight_response()
+    if request.method == "POST":
+        #It seems to only go post never options anymore. Shall try to do without the corsify
+        #Nope doesn't work we need it, but it is now just added to my other processing.
+        calculate_spintimes()
+        return addHeadersToResponse(jsonify(theAnswer))
+
+
 
 
 
