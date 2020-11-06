@@ -314,21 +314,23 @@ def addHeadersToResponse(response):
     
 
 def find_flowrate():
-  
+    
     #local_spintest_object=create_spintest_object()
     
     #For testing purposes:
+  
     local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
     _KQ=incomingData[list_of_the_keys[0]]
-     
-
+    
+    print("This is the _KQ that was passed over here")
+    print(_KQ)
+    #The KQ is correctly sent over each time. THat's not it.
     theQ=local_spintest_object.calcQ(KQ=_KQ)
     
-    print("Ran find Q function")
-    print(local_spintest_object.residualSol)
+    print("Ran find Q function.This is the Q")
     print(theQ)
     
     outdata={'The Flows':theQ}
