@@ -15,6 +15,8 @@ theAnswer={'first':3,'second':4}
 #None of these should be 0, so if they're sent to python as 0 
 #we know something's wrong.
 
+#Now that I am finishing up this I am thinking I should've made a class with properties instead of global variables, but oh well...
+
 #Fluid properties
 densityParticle=0
 densityFeed=0
@@ -333,7 +335,7 @@ def find_flowrate():
     print("Ran find Q function.This is the Q")
     print(theQ)
     
-    outdata={'The Flows':theQ}
+    outdata={'The_Flows':theQ}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /find_flowrate:")
@@ -342,21 +344,23 @@ def find_flowrate():
     return 
     
 def fulfill_criteria():
-      
+    #Function runs to produce maximum flowrates that can be run through some separators with capacity KQ
+    #and still yield acceptable separation efficiency
+
+
     #local_spintest_object=create_spintest_object()
     #For testing purposes:
     local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
-    #For testing purposes:
-    #incomingData={'TheCriteria':0.23,'theVectorOfKQ':[150,250,350,450],'DesiredQ':60}
+
     
     
     
     
     list_of_the_keys=list(incomingData.keys())
     #can pass desiredQ,KQ or Ae and Criteria
-    _criteria=incomingData[list_of_the_keys[0]]
+    _criteria=incomingData[list_of_the_keys[0]]/100
     KQ=incomingData[list_of_the_keys[1]]
     
  
@@ -371,19 +375,19 @@ def fulfill_criteria():
 
 
     LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
-    LF=LF*3600
-    
+    LF=LF*3600*1000
+    LF=round(LF,4)
+
+
     for i in range(0,len(Qmax)):
-        Qmax[i]=Qmax[i]*3600
+        Qmax[i]=Qmax[i]*3600*1000#Liter per h
+        Qmax[i]=round(Qmax[i],4)
     
     outdata={'LF':LF,'Qmax':Qmax,'KQ':KQ}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /fulfill_criteria:")
     print(theAnswer)
-
-    
-    
     return
 
 def find_capacity():
@@ -398,20 +402,22 @@ def find_capacity():
     
     
     list_of_the_keys=list(incomingData.keys())
-    #can pass desiredQ,KQ or Ae and Criteria
+    #can pass desiredQ and Criteria
     desiredQ=incomingData[list_of_the_keys[0]]
-    effluent_conc1=incomingData[list_of_the_keys[1]]
-    effluent_conc2=incomingData[list_of_the_keys[2]]
+
+    #Criterias are sent as percentages, so division is requrired to get decimal form
+    effluent_conc1=incomingData[list_of_the_keys[1]]/100
+    effluent_conc2=incomingData[list_of_the_keys[2]]/100
     
     effluent_conc_mid=(effluent_conc1+effluent_conc2)/2
     
 
     
-    LF_1,temp,KQ_1=local_spintest_object.resSolCrit(criteria=effluent_conc1,Qdesired=desiredQ)
+    LF_1,temp,KQ_1=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc1,Qdesired=desiredQ)
     LF_1=LF_1*3600
-    LF,temp,KQ=local_spintest_object.resSolCrit(criteria=effluent_conc_mid,Qdesired=desiredQ)
+    LF,temp,KQ=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc_mid,Qdesired=desiredQ)
     LF=LF*3600
-    LF_2,temp,KQ_2=local_spintest_object.resSolCrit(criteria=effluent_conc2,Qdesired=desiredQ)
+    LF_2,temp,KQ_2=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc2,Qdesired=desiredQ)
     LF_2=LF_2*3600
     
     print(LF_1,LF,LF_2)
@@ -454,7 +460,7 @@ def calculate_spintimes():
     
     
     
-    rec_spintimes=local_spintest_object.getSpinTimes(Q=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
+    rec_spintimes=local_spintest_object.getSpinTimes(Qin=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
     
     
     outdata={"Recommended_spintimes":rec_spintimes}

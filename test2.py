@@ -1,7 +1,5 @@
 
-
 import datetime as DT
-import requests
 import SpinTest.SpinTestClass as spintestModule
 #import SpinTest.test as importedModule #for testing purposes
 from flask import Flask, make_response,jsonify,request,json
