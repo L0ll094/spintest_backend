@@ -208,6 +208,7 @@ def _process_spintest_data(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
+    print("This is the incoming data:")
     print(incomingData)
 
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
@@ -257,20 +258,22 @@ def _process_spintest_data(response):
     speed3=incomingData[list_of_the_keys[10]]
     speed4=incomingData[list_of_the_keys[11]]
 
-    residualSolids1=incomingData[list_of_the_keys[12]]
-    residualSolids2=incomingData[list_of_the_keys[13]]
-    residualSolids3=incomingData[list_of_the_keys[14]]
-    residualSolids4=incomingData[list_of_the_keys[15]]
+    residualSolids1=incomingData[list_of_the_keys[12]]/100
+    residualSolids2=incomingData[list_of_the_keys[13]]/100
+    residualSolids3=incomingData[list_of_the_keys[14]]/100
+    residualSolids4=incomingData[list_of_the_keys[15]]/100
 
     TempSpinTest=incomingData[list_of_the_keys[16]]
     NeededQ=incomingData[list_of_the_keys[17]]
+    global theAnswer
+    global setup_has_been_completed
+    setup_has_been_completed=True
+    theAnswer={'Setup_completed_successfully:':setup_has_been_completed}
     return response
 
 
 
 def create_spintest_object():
-
-    
     
     spintimes=[spintime1, spintime2, spintime3,spintime4]
     Nstarts=[Nstart1,Nstart2,Nstart3,Nstart4]
@@ -298,8 +301,7 @@ def create_spintest_object():
                                             L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest,\
                                             accelTab=AccTable, retardTab=RetTable)
     
-    global setup_has_been_completed
-    setup_has_been_completed=True
+ 
 
     print(local_spintest_object)
     
@@ -353,10 +355,6 @@ def fulfill_criteria():
     local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
-
-    
-    
-    
     
     list_of_the_keys=list(incomingData.keys())
     #can pass desiredQ,KQ or Ae and Criteria
@@ -369,11 +367,6 @@ def fulfill_criteria():
     else:
         vector_of_KQ=[KQ*0.1,KQ*0.5,KQ,KQ*1.5,KQ*2]
     
-
-  
-
-
-
     LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
     LF=LF*3600*1000
     LF=round(LF,4)
@@ -414,14 +407,19 @@ def find_capacity():
 
     
     LF_1,temp,KQ_1=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc1,Qdesired=desiredQ)
-    LF_1=LF_1*3600
+    LF_1=round(LF_1*3600*1000,4)
+    KQ_1=round(KQ_1/1000,4)
+
     LF,temp,KQ=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc_mid,Qdesired=desiredQ)
-    LF=LF*3600
+    LF=round(LF*3600*1000,4)
+    KQ=round(KQ/1000,4)
+
     LF_2,temp,KQ_2=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc2,Qdesired=desiredQ)
-    LF_2=LF_2*3600
+    LF_2=round(LF_2*3600*1000,4)
+    KQ_2=round(KQ_2/1000,4)
     
-    print(LF_1,LF,LF_2)
-    print(KQ_1,KQ,KQ_2)
+    
+
     
     outdata={'LF_1':LF_1,'LF':LF,'LF_2':LF_2,'KQ_1':KQ_1,'KQ':KQ,'KQ_2':KQ_2}
     global theAnswer
