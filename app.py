@@ -17,10 +17,7 @@ theAnswer={'first':3,'second':4}
 
 #Now that I am finishing up this I am thinking I should've made a class with properties instead of global variables, but oh well...
 
-#Fluid properties
-densityParticle=0
-densityFeed=0
-kinViscosity=0
+
 
 #Equipment properties
 Rcentrifuge=0
@@ -79,7 +76,8 @@ residualSolids2=0
 residualSolids3=0
 residualSolids4=0
 
-setup_has_been_completed=False
+spintest_setup_successfully=False
+equipment_setup_successfully=False
 
 
 
@@ -96,30 +94,6 @@ def _build_cors_preflight_response():
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
-
-
-
-
-def _process_fluid_properties(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    #Take the incoming data and turning it into a python recognized dictionary
-    incomingData=request.get_json(force=True)
-   # print(incomingData)
-   
-
-    #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
-    #The keys correspond to the names of the Formcontrols in angular
-    
-    list_of_the_keys=list(incomingData.keys())
-    global densityParticle
-    global densityFeed
-    global kinViscosity
-    densityParticle=incomingData[list_of_the_keys[0]]
-    densityFeed=incomingData[list_of_the_keys[1]]
-    kinViscosity=incomingData[list_of_the_keys[2]]
-    
-    return response
-    
 
 
 
@@ -199,13 +173,15 @@ def _process_equipment_properties(response):
     Ret_rpm_3=incomingData[list_of_the_keys[25]]
     Ret_rpm_4=incomingData[list_of_the_keys[26]]
     Ret_rpm_5=incomingData[list_of_the_keys[27]]
-    Ret_rpm_6=incomingData[list_of_the_keys[28]] 
-    print(incomingData)
+    Ret_rpm_6=incomingData[list_of_the_keys[28]]
+    global theAnswer
+    global equipment_setup_successfully
+    equipment_setup_successfully=True
+    theAnswer={'equipment_completed_successfully:':equipment_setup_successfully}
+    return response 
 
-    return response
 
-def _process_spintest_data(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
+def _process_spintest_data():
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
     print("This is the incoming data:")
@@ -236,9 +212,6 @@ def _process_spintest_data(response):
     global residualSolids3
     global residualSolids4
 
-    global TempSpinTest
-    global NeededQ
-    
     
   
     spintime1=incomingData[list_of_the_keys[0]]
@@ -263,13 +236,15 @@ def _process_spintest_data(response):
     residualSolids3=incomingData[list_of_the_keys[14]]/100
     residualSolids4=incomingData[list_of_the_keys[15]]/100
 
-    TempSpinTest=incomingData[list_of_the_keys[16]]
-    NeededQ=incomingData[list_of_the_keys[17]]
     global theAnswer
-    global setup_has_been_completed
-    setup_has_been_completed=True
-    theAnswer={'Setup_completed_successfully:':setup_has_been_completed}
-    return response
+    global spintest_setup_successfully
+    spintest_setup_successfully=True
+    
+    outdata={'spintest_setup_successfully:':spintest_setup_successfully}
+    theAnswer=json.dumps(outdata)
+    print("This is returned:")
+    print(theAnswer)
+    return
 
 
 
@@ -480,15 +455,6 @@ def hello_world():
     return "This is the backend server. You can send post requests to /send_fluid_properties,/send_equipment_properties and /send_spintest_data."
 
 
-
-@app.route('/send_fluid_properties', methods = ['POST'])
-def respond_to_fluid_properties():
-    if request.method == "OPTIONS":
-        return _build_cors_preflight_response()
-    if request.method == "POST":
-        #It seems to only go post never options anymore. Shall try to do without the corsify
-        #Nope doesn't work we need it.
-        return _process_fluid_properties(jsonify(theAnswer))
     
 @app.route('/send_equipment_properties', methods = ['POST'])
 def respond_to_equipment_properties():
@@ -497,6 +463,7 @@ def respond_to_equipment_properties():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it.
+        
         return _process_equipment_properties(jsonify(theAnswer))
 
    
@@ -507,7 +474,8 @@ def respond_to_spintest_data():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it, but it is now just added to my other processing.
-        return _process_spintest_data(jsonify(theAnswer))
+        _process_spintest_data()
+        return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/find_flowrate',methods=['POST'])
 def respond_with_results():
@@ -544,7 +512,7 @@ def respond_with_results3():
 def respond_with_results4():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
-    if request.method == "POST":
+    if request.method == "POST": 
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it, but it is now just added to my other processing.
         calculate_spintimes()
