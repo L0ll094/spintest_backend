@@ -386,16 +386,16 @@ def find_capacity():
 
     
     LF_1,temp,KQ_1=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc1,Qdesired=desiredQ)
-    LF_1=round(LF_1*3600*1000,4)
-    KQ_1=round(KQ_1/1000,4)
+    LF_1=round(LF_1*3600*1000,0)
+    KQ_1=round(KQ_1/1000,0)
 
     LF,temp,KQ=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc_mid,Qdesired=desiredQ)
-    LF=round(LF*3600*1000,4)
-    KQ=round(KQ/1000,4)
+    LF=round(LF*3600*1000,0)
+    KQ=round(KQ/1000,0)
 
     LF_2,temp,KQ_2=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc2,Qdesired=desiredQ)
-    LF_2=round(LF_2*3600*1000,4)
-    KQ_2=round(KQ_2/1000,4)
+    LF_2=round(LF_2*3600*1000,0)
+    KQ_2=round(KQ_2/1000,0)
     
     
 
