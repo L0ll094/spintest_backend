@@ -97,8 +97,8 @@ def _corsify_actual_response(response):
 
 
 
-def _process_equipment_properties(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
+def _process_equipment_properties():
+
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
     #print(incomingData)
@@ -174,11 +174,15 @@ def _process_equipment_properties(response):
     Ret_rpm_4=incomingData[list_of_the_keys[26]]
     Ret_rpm_5=incomingData[list_of_the_keys[27]]
     Ret_rpm_6=incomingData[list_of_the_keys[28]]
+    
     global theAnswer
     global equipment_setup_successfully
     equipment_setup_successfully=True
-    theAnswer={'equipment_completed_successfully:':equipment_setup_successfully}
-    return response 
+    outdata={'equipment_setup_successfully':equipment_setup_successfully}
+    theAnswer=json.dumps(outdata)
+    print("This is returned:")
+    print(theAnswer)
+    return
 
 
 def _process_spintest_data():
@@ -240,7 +244,7 @@ def _process_spintest_data():
     global spintest_setup_successfully
     spintest_setup_successfully=True
     
-    outdata={'spintest_setup_successfully:':spintest_setup_successfully}
+    outdata={'spintest_setup_successfully':spintest_setup_successfully}
     theAnswer=json.dumps(outdata)
     print("This is returned:")
     print(theAnswer)
@@ -463,8 +467,8 @@ def respond_to_equipment_properties():
     if request.method == "POST":
         #It seems to only go post never options anymore. Shall try to do without the corsify
         #Nope doesn't work we need it.
-        
-        return _process_equipment_properties(jsonify(theAnswer))
+        _process_equipment_properties()
+        return addHeadersToResponse(jsonify(theAnswer))
 
    
 @app.route('/send_spintest_data', methods = ['POST'])
