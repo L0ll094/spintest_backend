@@ -342,7 +342,7 @@ def fulfill_criteria():
     
  
     if(KQ==None):
-        vector_of_KQ=[100,200,300,400]
+        vector_of_KQ=[100,200,300,400,500]
     else:
         vector_of_KQ=[KQ*0.1,KQ*0.5,KQ,KQ*1.5,KQ*2]
     
@@ -386,15 +386,15 @@ def find_capacity():
 
     
     LF_1,temp,KQ_1=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc1,Qdesired=desiredQ)
-    LF_1=round(LF_1*3600*1000,0)
+    LF_1=round(LF_1*3600*1000,3)
     KQ_1=round(KQ_1/1000,0)
 
     LF,temp,KQ=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc_mid,Qdesired=desiredQ)
-    LF=round(LF*3600*1000,0)
+    LF=round(LF*3600*1000,3)
     KQ=round(KQ/1000,0)
 
     LF_2,temp,KQ_2=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc2,Qdesired=desiredQ)
-    LF_2=round(LF_2*3600*1000,0)
+    LF_2=round(LF_2*3600*1000,3)
     KQ_2=round(KQ_2/1000,0)
     
     
