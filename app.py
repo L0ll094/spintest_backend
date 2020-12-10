@@ -426,21 +426,28 @@ def calculate_spintimes():
     Flow1=incomingData[list_of_the_keys[1]]
     Flow4=incomingData[list_of_the_keys[2]]
     SpinningSpeed=incomingData[list_of_the_keys[3]]
-    
+    #incoming as L per h, want to pass it into Spintimes as m3/h
     Flow2=Flow1+((Flow4-Flow1)/3)
     Flow3=Flow1+(2*(Flow4-Flow1)/3)
     
-    Flows=[Flow1,Flow2,Flow3,Flow4]
-    
-    
-    
-    
-    
-    
+    Flows=[Flow1,Flow2,Flow3,Flow4]       
+
+    for i in range(0,len(Flows)):#Unit change from volume per h to volume per sec
+        temp=Flows[i]/1000
+        Flows[i]=temp
+    #Getting recommended spintimes in seconds
     rec_spintimes=local_spintest_object.getSpinTimes(Qin=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
+    FlowsLperH=[]
+    for i in range(0,len(Flows)):#Unit change from volume per h to volume per sec
+        temp=Flows[i]*1000*3600
+        FlowsLperH.append(temp)
     
-    
-    outdata={"Recommended_spintimes":rec_spintimes}
+    #Passing them back as minutes in decimal form
+    for i in range(0,len(rec_spintimes)):
+        temp=round(rec_spintimes[i]/60,1)
+        rec_spintimes[i]=temp
+  
+    outdata={"Recommended_spintimes":rec_spintimes,"Flows":FlowsLperH}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /calculate_spintimes:")
