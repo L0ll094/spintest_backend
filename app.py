@@ -439,12 +439,12 @@ def calculate_spintimes():
     rec_spintimes=local_spintest_object.getSpinTimes(Qin=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
     FlowsLperH=[]
     for i in range(0,len(Flows)):#Unit change from volume per h to volume per sec
-        temp=Flows[i]*1000*3600
+        temp=round(Flows[i]*1000*3600,1)
         FlowsLperH.append(temp)
     
     #Passing them back as minutes in decimal form
     for i in range(0,len(rec_spintimes)):
-        temp=round(rec_spintimes[i]/60,1)
+        temp=round(rec_spintimes[i]/60,2)
         rec_spintimes[i]=temp
   
     outdata={"Recommended_spintimes":rec_spintimes,"Flows":FlowsLperH}
