@@ -5,6 +5,9 @@ needs to have:
 numpy
 scipy
 flask
+requests
+
+This can be installed by writing "pip install NAME" in the terminal
 
 You will also need to ensure that the file structure is as follows
 
