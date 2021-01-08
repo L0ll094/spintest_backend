@@ -347,7 +347,7 @@ def fulfill_criteria():
         vector_of_KQ=[KQ*0.1,KQ*0.5,KQ,KQ*1.5,KQ*2]
     
     LF,Qmax,KQ=local_spintest_object.resSolCrit(criteria=_criteria,KQ=vector_of_KQ)
-    LF=LF*3600*1000
+    LF=LF*3600*1000#Liter per h
     LF=round(LF,4)
 
 
