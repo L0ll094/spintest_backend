@@ -188,12 +188,7 @@ def _process_equipment_properties():
     print("This is returned:")
     print(theAnswer)
 
-    #Below is only temporary for testing purposes
-    local_spintest_object=create_spintest_object()
-    #local_spintest_object=spintestModule.SpinTest()
 
-    
-    print(local_spintest_object)
     print("********************************************************************")
     
     return
@@ -301,11 +296,11 @@ def addHeadersToResponse(response):
 
 def find_flowrate():
     
-    local_spintest_object=create_spintest_object()
+    #local_spintest_object=create_spintest_object()
     
     #For testing purposes:
   
-    #local_spintest_object=spintestModule.SpinTest()
+    local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
@@ -372,8 +367,7 @@ def find_capacity():
 
     
     incomingData=request.get_json(force=True)
-    #For testing purposes:
-    #incomingData={'Approx. eff.':0.23,'DesiredQ':60}
+
     
     
     list_of_the_keys=list(incomingData.keys())
@@ -418,7 +412,7 @@ def calculate_spintimes():
     local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
-    #For testing purposes:
+
 
     
     
