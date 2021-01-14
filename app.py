@@ -101,7 +101,10 @@ def _process_equipment_properties():
 
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
-    #print(incomingData)
+
+    print("\n\nThis is the incoming data from the equipment field")
+    print("Incoming data:")
+    print(incomingData)
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
     #The keys correspond to the names of the Formcontrols in angular
     list_of_the_keys=list(incomingData.keys())
@@ -143,10 +146,11 @@ def _process_equipment_properties():
 
     Rcentrifuge=incomingData[list_of_the_keys[0]]
     
-    V1=incomingData[list_of_the_keys[1]]
-    V2=incomingData[list_of_the_keys[2]]
-    L1=incomingData[list_of_the_keys[3]]
-    L2=incomingData[list_of_the_keys[4]]
+
+    L1=incomingData[list_of_the_keys[1]]
+    L2=incomingData[list_of_the_keys[2]]
+    V1=incomingData[list_of_the_keys[3]]
+    V2=incomingData[list_of_the_keys[4]]
     Acc_t_1=incomingData[list_of_the_keys[5]]
     Acc_t_2=incomingData[list_of_the_keys[6]]
     Acc_t_3=incomingData[list_of_the_keys[7]]
@@ -180,15 +184,27 @@ def _process_equipment_properties():
     equipment_setup_successfully=True
     outdata={'equipment_setup_successfully':equipment_setup_successfully}
     theAnswer=json.dumps(outdata)
+
     print("This is returned:")
     print(theAnswer)
+
+    #Below is only temporary for testing purposes
+    local_spintest_object=create_spintest_object()
+    #local_spintest_object=spintestModule.SpinTest()
+
+    
+    print(local_spintest_object)
+    print("********************************************************************")
+    
     return
 
 
 def _process_spintest_data():
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
-    print("This is the incoming data:")
+    print("********************************************************************")
+    print("Incoming data:")
+    print("This is the incoming data: from the spintest form")
     print(incomingData)
 
     #We expect a certain order of incoming data, but try to avoid guessing the name right in case angular did something
@@ -224,7 +240,6 @@ def _process_spintest_data():
     spintime4=incomingData[list_of_the_keys[3]]
     
     Nstart1=incomingData[list_of_the_keys[4]]
-
     Nstart2=incomingData[list_of_the_keys[5]]
     Nstart3=incomingData[list_of_the_keys[6]]
     Nstart4=incomingData[list_of_the_keys[7]]
@@ -262,27 +277,15 @@ def create_spintest_object():
     RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Ret_t_1, Ret_t_2, Ret_t_3, Ret_t_4, Ret_t_5, Ret_t_6]]
     
     #ensure spintimes are provided as number of minutes
-    spintimes_min=[]
-    refTime=DT.datetime(1900,1,1)
-    print("\n\n\n\n")
-    for time in spintimes:
-        temp=DT.datetime.strptime(time,'%M:%S')
-        time_in_minutes=(temp-refTime).total_seconds()/60
-        spintimes_min.append(time_in_minutes)
-        
-        
-
-    #remember to add TempSpinTest and Needed Q to below call once they have been added to form.
+    #Can be changed in frontend, but due to difficulties finding a good way to enter a time that is not a time of day
+    #THe decision was made to enter it as a number of minutes. 
+    spintimes_min=spintimes
         
         
     local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
-                                            densityfeed=densityFeed,densityparticle=densityParticle,kinviscosity=kinViscosity,\
-                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,neededQ=NeededQ,tempSpinTest=TempSpinTest,\
+                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,\
                                             accelTab=AccTable, retardTab=RetTable)
     
- 
-
-    print(local_spintest_object)
     
     
     return local_spintest_object
@@ -298,11 +301,11 @@ def addHeadersToResponse(response):
 
 def find_flowrate():
     
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     
     #For testing purposes:
   
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
@@ -407,7 +410,6 @@ def find_capacity():
     print(theAnswer)
 
     return
-
 
 def calculate_spintimes():
     

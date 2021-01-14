@@ -5,7 +5,5 @@ import SpinTest.SpinTestClass as spintestModule
 from flask import Flask, make_response,jsonify,request,json
 import pdb
 #Added this comment from company laptop to test if shit works
-local_spintest_object=None
-local_spintest_object=spintestModule.SpinTest()
-_KQ=200
-local_spintest_object.calcQ(KQ=_KQ)
+local_spintest_object=spintestModule.SpinTest(V1=100,V2=20,L1=76.2, L2=24.8)
+print(local_spintest_object)
