@@ -375,6 +375,7 @@ def find_capacity():
 
     
     incomingData=request.get_json(force=True)
+    print(incomingData)
 
     
     
@@ -389,7 +390,8 @@ def find_capacity():
     effluent_conc_mid=(effluent_conc1+effluent_conc2)/2
     
 
-    
+    #Enter Q as m3 per h
+    ##LF unit is [m3/s*KQ]. To change it to L/h*KQ, it is multiplied by 3600 and 1000
     LF_1,temp,KQ_1=local_spintest_object.resSolCrit(KQ=0,criteria=effluent_conc1,Qdesired=desiredQ)
     LF_1=round(LF_1*3600*1000,3)
     KQ_1=round(KQ_1/1000,0)
