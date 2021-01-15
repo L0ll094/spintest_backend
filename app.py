@@ -25,6 +25,8 @@ V1=0
 V2=0
 L1=0
 L2=0
+Va=0
+Vb=0
 
 Acc_t_1=0
 Acc_t_2=0
@@ -114,6 +116,9 @@ def _process_equipment_properties():
     global V2
     global L1
     global L2
+    global Va
+    global Vb
+
     global Acc_t_1
     global Acc_t_2
     global Acc_t_3
@@ -151,6 +156,7 @@ def _process_equipment_properties():
     L2=incomingData[list_of_the_keys[2]]
     V1=incomingData[list_of_the_keys[3]]
     V2=incomingData[list_of_the_keys[4]]
+
     Acc_t_1=incomingData[list_of_the_keys[5]]
     Acc_t_2=incomingData[list_of_the_keys[6]]
     Acc_t_3=incomingData[list_of_the_keys[7]]
@@ -178,6 +184,8 @@ def _process_equipment_properties():
     Ret_rpm_4=incomingData[list_of_the_keys[26]]
     Ret_rpm_5=incomingData[list_of_the_keys[27]]
     Ret_rpm_6=incomingData[list_of_the_keys[28]]
+    Va=incomingData[list_of_the_keys[29]]
+    Vb=incomingData[list_of_the_keys[30]]
     
     global theAnswer
     global equipment_setup_successfully
@@ -278,7 +286,7 @@ def create_spintest_object():
         
         
     local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
-                                            L1=L1,L2=L2,V1=V1,V2=V2,rCentrifuge=Rcentrifuge,\
+                                            L1=L1,L2=L2,V1=V1,V2=V2,Va=Va, Vb=Vb, rCentrifuge=Rcentrifuge,\
                                             accelTab=AccTable, retardTab=RetTable)
     
     
