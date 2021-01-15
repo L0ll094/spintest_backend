@@ -304,19 +304,17 @@ def addHeadersToResponse(response):
 
 def find_flowrate():
     
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     
     #For testing purposes:
   
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
     _KQ=incomingData[list_of_the_keys[0]]
     
-    print("This is the _KQ that was passed over here")
-    print(_KQ)
-    #The KQ is correctly sent over each time. THat's not it.
+
     theQ=local_spintest_object.calcQ(KQ=_KQ)
     
     print("Ran find Q function.This is the Q")
@@ -335,9 +333,9 @@ def fulfill_criteria():
     #and still yield acceptable separation efficiency
 
 
-    local_spintest_object=create_spintest_object()
+    #local_spintest_object=create_spintest_object()
     #For testing purposes:
-    #local_spintest_object=spintestModule.SpinTest()
+    local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     
@@ -417,9 +415,9 @@ def find_capacity():
 
 def calculate_spintimes():
     
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     #For testing purposes:
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     print("\n\nThe incoming data is:")
@@ -457,7 +455,7 @@ def calculate_spintimes():
         temp=round(rec_spintimes[i]/60,2)
         rec_spintimes[i]=temp
     """
-    outdata={"Recommended_spintimes":rec_spintimes,"Flows":TheFlows}
+    outdata={"Recommended_spintimes":rec_spintimes}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /calculate_spintimes:")
