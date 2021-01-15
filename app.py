@@ -304,11 +304,11 @@ def addHeadersToResponse(response):
 
 def find_flowrate():
     
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     
     #For testing purposes:
   
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     list_of_the_keys=list(incomingData.keys())
@@ -335,9 +335,9 @@ def fulfill_criteria():
     #and still yield acceptable separation efficiency
 
 
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     #For testing purposes:
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     
@@ -369,9 +369,9 @@ def fulfill_criteria():
     return
 
 def find_capacity():
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     #For testing purposes:
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
 
     
     incomingData=request.get_json(force=True)
@@ -422,6 +422,8 @@ def calculate_spintimes():
     local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
+    print("\n\nThe incoming data is:")
+    print(incomingData)
 
 
     
@@ -429,35 +431,37 @@ def calculate_spintimes():
     list_of_the_keys=list(incomingData.keys())
     #can pass desiredQ,KQ or Ae and Criteria
     KQ=incomingData[list_of_the_keys[0]]
-    Flow1=incomingData[list_of_the_keys[1]]
-    Flow4=incomingData[list_of_the_keys[2]]
+    Flow4=incomingData[list_of_the_keys[1]]
+    Flow1=incomingData[list_of_the_keys[2]]
     SpinningSpeed=incomingData[list_of_the_keys[3]]
-    #incoming as L per h, want to pass it into Spintimes as m3/h
-    Flow2=Flow1+((Flow4-Flow1)/3)
-    Flow3=Flow1+(2*(Flow4-Flow1)/3)
+    #incoming as m3/h
+    Flow3=Flow1+((Flow4-Flow1)/3)
+    Flow2=Flow1+(2*(Flow4-Flow1)/3)
     
-    Flows=[Flow1,Flow2,Flow3,Flow4]       
+    
+    TheFlows=[Flow1,Flow2,Flow3,Flow4]       
+    print("Flows now look like 1:")
+    print(TheFlows)
 
-    for i in range(0,len(Flows)):#Unit change from volume per h to volume per sec
-        temp=Flows[i]/1000
-        Flows[i]=temp
     #Getting recommended spintimes in seconds
-    rec_spintimes=local_spintest_object.getSpinTimes(Qin=Flows,w0=SpinningSpeed,Ae=KQ*38.2)
-    FlowsLperH=[]
-    for i in range(0,len(Flows)):#Unit change from volume per h to volume per sec
-        temp=round(Flows[i]*1000*3600,1)
-        FlowsLperH.append(temp)
+    rec_spintimes=local_spintest_object.getSpinTimes(Qin=[Flow1,Flow2,Flow3,Flow4],w0=SpinningSpeed,Ae=KQ*38.2)
+
+    print("Flows now look like 2:")
+    print(TheFlows)
+
     
-    #Passing them back as minutes in decimal form
+    #Passing them back as minutes in decimal form instead of seconds
     for i in range(0,len(rec_spintimes)):
         temp=round(rec_spintimes[i]/60,2)
         rec_spintimes[i]=temp
   
-    outdata={"Recommended_spintimes":rec_spintimes,"Flows":FlowsLperH}
+    outdata={"Recommended_spintimes":rec_spintimes,"Flows":TheFlows}
     global theAnswer
     theAnswer=json.dumps(outdata)
     print("Sent back to frontend from /calculate_spintimes:")
     print(theAnswer)
+    print("Flows now look like 3:")
+    print(TheFlows)
     
     
     return
