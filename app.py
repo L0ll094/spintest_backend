@@ -438,15 +438,16 @@ def calculate_spintimes():
     Flow2=Flow1+((Flow4-Flow1)/3)
     Flow3=Flow1+(2*(Flow4-Flow1)/3)
     
-    Flow2=round(Flow2,0)
-    Flow3=round(Flow3,0)
+    Flow2=round(Flow2,3)
+    Flow3=round(Flow3,3)
     
     
     TheFlows=[Flow1,Flow2,Flow3,Flow4]       
 
 
     #Getting recommended spintimes in seconds
-    rec_spintimes=local_spintest_object.getSpinTimes(Qin=[Flow1,Flow2,Flow3,Flow4],w0=SpinningSpeed,Ae=KQ*38.2)
+
+    rec_spintimes=local_spintest_object.getSpinTimes(Qin=[Flow4,Flow3,Flow2,Flow1],w0=SpinningSpeed,Ae=KQ*38.2)
 
    
 
