@@ -26,8 +26,6 @@ print("Rec spintimes:")
 print(rec_spintimes)
 
 
-print("Flows now look like 2:")
-print(TheFlows)
 
 
 
