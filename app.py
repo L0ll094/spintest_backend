@@ -415,9 +415,9 @@ def find_capacity():
 
 def calculate_spintimes():
     
-    local_spintest_object=create_spintest_object()
-    #For testing purposes:
-    #local_spintest_object=spintestModule.SpinTest()
+    #In this case, we merely need to use a function that exists only as a method belonging to the class.
+    #A default object of the SpinTestClass is created for this purpose
+    local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     print("\n\nThe incoming data is:")
