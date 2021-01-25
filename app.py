@@ -1,25 +1,26 @@
+"""
+Created by: setulsnc, Louise Stjern
+
+"""
+
+
+
 import datetime as DT
 import requests
 import SpinTest.SpinTestClass as spintestModule
-#import SpinTest.test as importedModule #for testing purposes
+
 from flask import Flask, make_response,jsonify,request,json
 import pdb
-#Added this comment from company laptop to test if shit works
+
+
 
 app = Flask(__name__)
-
+#Setting the important variable "theAnswer" to something at the start, so that it exists. 
 theAnswer={'first':3,'second':4}
 
-#Preparing containers to store incoming data.
-#This is not needed, but is done for the next person looking at this code, to make it more understandable.
-#None of these should be 0, so if they're sent to python as 0 
-#we know something's wrong.
+#Preparing variables where incoming data will be stored. Not necessarily needed in python but is done to give a proper overview for the next coder to look at this. None of them should be 0, so if they remain 0 after communicating with frontend, we know something's wrong.
 
-#Now that I am finishing up this I am thinking I should've made a class with properties instead of global variables, but oh well...
-
-
-
-#Equipment properties
+#Equipment properties for the centrifuge and the sample tubes
 Rcentrifuge=0
 V1=0
 V2=0
@@ -58,13 +59,14 @@ Ret_rpm_6=0
 
 
 
-#Spintest Data
+#Spintest Data for the spintest that was just run.
 Nstart1=0
 Nstart2=0
 Nstart3=0
 Nstart4=0
 
 spintime1=0
+spintime2=0
 spintime3=0
 spintime4=0
 
@@ -85,7 +87,7 @@ equipment_setup_successfully=False
 
 
 
-#Below code was copied from a solution on stack overflow to resole the issue of not having appropriate CORS headers
+#The functions _build_cors_preflight_response()_corsify_actual_response() and addHeadersToResponse() were copied from a solution on stack overflow to resole the issue of not having appropriate CORS headers. The CORS headers seem to be a security measure regulating what requests this backend may or may not respond to.
 def _build_cors_preflight_response():
     response = make_response()
     response.headers.add('Access-Control-Allow-Origin', "*")
@@ -97,8 +99,18 @@ def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
 
+def addHeadersToResponse(response):
+    #This is run after thaAnswer have been updated by the find_flowrate function
+    #so that the response is something useful and not just the default value of theAnswer
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    
+    return response
+    
+    
 
-
+# _process_equipment_properties()  is one of the two setup-functions. Once the user has filled out the information about their equipment (or chosen the defaults) and clicks "send", this function will take the info and save it in the respective global variable it belongs in.
+#@input:-
+#@output:-
 def _process_equipment_properties():
 
     #Take the incoming data and turning it into a python recognized dictionary
@@ -201,7 +213,9 @@ def _process_equipment_properties():
     
     return
 
-
+# _process_spintest_data()  is the second of the two setup-functions. Once the user has filled out the information about their spintest such as the spintimes, the results etc and clicks "send", this function will take the info and save it in the respective global variable it belongs in.
+#@input:-
+#@output:-
 def _process_spintest_data():
     #Take the incoming data and turning it into a python recognized dictionary
     incomingData=request.get_json(force=True)
@@ -269,7 +283,9 @@ def _process_spintest_data():
     return
 
 
-
+# create_spintest_object() will take all the above mentioned and now updated global variables and create an object of the type "SpinTestClass" with all the data from the user. 
+#@input:-
+#@output: Returns the SpinTestClass object. 
 def create_spintest_object():
     
     spintimes=[spintime1, spintime2, spintime3,spintime4]
@@ -293,15 +309,10 @@ def create_spintest_object():
     
     return local_spintest_object
 
-def addHeadersToResponse(response):
-    #This is run after thaAnswer have been updated by the find_flowrate function
-    #so that the response is something useful and not just the default value of theAnswer
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    
-    return response
-    
-    
 
+#When the endpoint /find_flowrate is accessed, this function will create a SpinTestClass object with the user data, and given some separator size KQ will call a method to return the corresponding flowrate to the user. The answer is saved in json format in the global variable "theAnswer" which is then accessed and sent to frontend in respond_to_find_flowrate()
+#@input: Through endpoint, a capacity as KQ.
+#@output: Through endpoint, a vector of 4 flowrates corresponding to the 4 different separation results the user got 
 def find_flowrate():
     
     local_spintest_object=create_spintest_object()
@@ -327,10 +338,12 @@ def find_flowrate():
     print(theAnswer)
 
     return 
-    
+
+#When the endpoint /fulfill_criteria is accessed, this function will create a SpinTestClass object with the user data. Using a separator capacity (if given) and a desired criteria for the outlet result ("referred to commonly as residualSolids" but can be in whatever unit the user desires). Creates a vector of 4 KQ:s to produce a range, and then the function calculates a set of maximum flowrates that can go through each KQ in order to yield a result satisfying the criteria. The answer is saved in json format in the global variable "theAnswer" which is then accessed and sent to frontend in respond_to_fulfill_criteria()
+#@input:Through endpoint, a criteria in the same unit as the result (referred to as residualSolids) and optionally a separator capacity KQ
+#@output: Through endpoint, a vector of maximum allowable flowrates Qmax [L/h], a loadfactor [L/KQ*H]
 def fulfill_criteria():
-    #Function runs to produce maximum flowrates that can be run through some separators with capacity KQ
-    #and still yield acceptable separation efficiency
+
 
 
     #local_spintest_object=create_spintest_object()
@@ -366,6 +379,9 @@ def fulfill_criteria():
     print(theAnswer)
     return
 
+#When the endpoint /find_capacity() is accessed, this function will find an appropriate separator size KQ ("capacity" is the wrong denomination, size is much more appropriate) for the desired flowrate and acceptable interval of separation results (referred to as "effluent conc" here). An upper and lower bound of acceptable results are given, a middle point is calculated. A loadfactor, and recommended size is given for each of the three separation results.The answer is saved in json format in the global variable "theAnswer" which is then accessed and sent to frontend in respond_to_find_capacity()
+#@input: Via the endpoint, a desired flowrate Q [m3/h] and an upper and lower bound of acceptable separation results in whatever unit was used when setting up the spintest data.
+#output: Via the endpoint, three separator sizes and three loadfactors to match the upper lower and middle separation results. 
 def find_capacity():
     local_spintest_object=create_spintest_object()
     #For testing purposes:
@@ -413,11 +429,26 @@ def find_capacity():
 
     return
 
+
+
+#When the endpoint /calculate_spintimes is accessed, this function will create a SpinTestClass object with default spintesdata, and customized equipment data. The class method CalculateSpintimes is then accessed using this object. The user commonly knows both their separator size and their expected florwrates and wants to know what spintime in their centrifuge corresponds to a flowrate through their separator. Theoretically, these should yield similar separation results. 
+#@input: Via the endpoint, an upper and lower bound of flowrate [m3/h] and a separator size is entered, as well as a centrifuge speed.
+#output: Via the endpoint, the recommended spintimes in seconds for the lower Q, upper Q and the two flowrates in between is returned. 
 def calculate_spintimes():
     
-    #In this case, we merely need to use a function that exists only as a method belonging to the class.
-    #A default object of the SpinTestClass is created for this purpose
-    local_spintest_object=spintestModule.SpinTest()
+ 
+    #A SpinTestClass object with default spintestdata is created. 
+    AccTable=[[Acc_rpm_1, Acc_rpm_2, Acc_rpm_3, Acc_rpm_4, Acc_rpm_5, Acc_rpm_6],[Acc_t_1, Acc_t_2, Acc_t_3, Acc_t_4, Acc_t_5, Acc_t_6]]
+    RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Ret_t_1, Ret_t_2, Ret_t_3, Ret_t_4, Ret_t_5, Ret_t_6]]
+    theCentrifugeRadius=Rcentrifuge
+    theV1=V1
+    theV2=V2
+    theVa=Va
+    theVb=Vb
+    theL1=L1
+    theL2=L2
+    
+    local_spintest_object=spintestModule.SpinTest(L1=theL1,L2=theL2,V1=theV1,V2=theV2,Va=theVa, Vb=theVb, rCentrifuge=theCentrifugeRadius,accelTab=AccTable, retardTab=RetTable)
     
     incomingData=request.get_json(force=True)
     print("\n\nThe incoming data is:")
@@ -438,23 +469,12 @@ def calculate_spintimes():
     
     Flow2=round(Flow2,3)
     Flow3=round(Flow3,3)
-    
-    
-    TheFlows=[Flow1,Flow2,Flow3,Flow4]       
-
-
     #Getting recommended spintimes in seconds
 
     rec_spintimes=local_spintest_object.getSpinTimes(Qin=[Flow4,Flow3,Flow2,Flow1],w0=SpinningSpeed,Ae=KQ*38.2)
 
    
 
-    
-    #Passing them back as minutes in decimal form instead of seconds
-    """ for i in range(0,len(rec_spintimes)):
-        temp=round(rec_spintimes[i]/60,2)
-        rec_spintimes[i]=temp
-    """
     outdata={"Recommended_spintimes":rec_spintimes}
     global theAnswer
     theAnswer=json.dumps(outdata)
@@ -471,8 +491,8 @@ def calculate_spintimes():
 
 #routes and what happens when you send a request to them
 @app.route('/')
-def hello_world():
-    return "This is the backend server. You can send post requests to /send_fluid_properties,/send_equipment_properties and /send_spintest_data."
+def default():
+    return "This is the backend server. You can send post requests to '/find_flowrate', \n /fulfill_criteria \n /find_capacity, \n /calculate_spintimes, \n /send_fluid_properties, \n /send_equipment_properties and \n/send_spintest_data."
 
 
     
@@ -498,7 +518,7 @@ def respond_to_spintest_data():
         return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/find_flowrate',methods=['POST'])
-def respond_with_results():
+def respond_to_find_flowrate():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
@@ -509,7 +529,7 @@ def respond_with_results():
 
 
 @app.route('/fulfill_criteria',methods=['POST'])
-def respond_with_results2():
+def respond_to_fulfill_criteria():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
@@ -519,7 +539,7 @@ def respond_with_results2():
         return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/find_capacity',methods=['POST'])
-def respond_with_results3():
+def respond_to_find_capacity():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST":
@@ -529,7 +549,7 @@ def respond_with_results3():
         return addHeadersToResponse(jsonify(theAnswer))
     
 @app.route('/calculate_spintimes',methods=['POST'])
-def respond_with_results4():
+def respond_to_calculate_spintimes():
     if request.method == "OPTIONS":
         return _build_cors_preflight_response()
     if request.method == "POST": 
