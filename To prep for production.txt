@@ -1,0 +1,8 @@
+Prod vs dev
+
+Dev orkar inte riktigt om det blir för många besökare. 
+De vill ha en webbserver som ligger som en proxy. 
+Här rekommenderar de att använda WSGI iställer. 
+
+Då ska man installera UWSGI in i python. 
+Det är ett protokoll som används för att gå upp i produktionsläge med Flask
