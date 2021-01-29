@@ -287,23 +287,33 @@ def _process_spintest_data():
 #@input:-
 #@output: Returns the SpinTestClass object. 
 def create_spintest_object():
-    
-    spintimes=[spintime1, spintime2, spintime3,spintime4]
-    Nstarts=[Nstart1,Nstart2,Nstart3,Nstart4]
-    Speeds=[speed1,speed2,speed3,speed4]
-    ResidualSolids=[residualSolids1,residualSolids2,residualSolids3,residualSolids4]
-    AccTable=[[Acc_rpm_1, Acc_rpm_2, Acc_rpm_3, Acc_rpm_4, Acc_rpm_5, Acc_rpm_6],[Acc_t_1, Acc_t_2, Acc_t_3, Acc_t_4, Acc_t_5, Acc_t_6]]
-    RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Ret_t_1, Ret_t_2, Ret_t_3, Ret_t_4, Ret_t_5, Ret_t_6]]
-    
-    #ensure spintimes are provided as number of minutes
-    #Can be changed in frontend, but due to difficulties finding a good way to enter a time that is not a time of day
-    #THe decision was made to enter it as a number of minutes. 
-    spintimes_min=spintimes
+    global spintest_setup_successfully
+    #In case the user declines to fill in the spintest data for whatever reason, I don't want anything to crash. The frontend will ensure that a message is sent letting the user know that they will be shown a default graph.
+    if (spintest_setup_successfully==True):
+        spintimes=[spintime1, spintime2, spintime3,spintime4]
+        #ensure spintimes are provided as number of minutes
+        #Can be changed in frontend, but due to difficulties finding a good way to enter a time that is not a time of day
+        #THe decision was made to enter it as a number of minutes. 
+        spintimes_min=spintimes
+        Nstarts=[Nstart1,Nstart2,Nstart3,Nstart4]
+        Speeds=[speed1,speed2,speed3,speed4]
+        ResidualSolids=[residualSolids1,residualSolids2,residualSolids3,residualSolids4]
+        AccTable=[[Acc_rpm_1, Acc_rpm_2, Acc_rpm_3, Acc_rpm_4, Acc_rpm_5, Acc_rpm_6],[Acc_t_1, Acc_t_2, Acc_t_3, Acc_t_4, Acc_t_5, Acc_t_6]]
+        RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Ret_t_1, Ret_t_2, Ret_t_3, Ret_t_4, Ret_t_5, Ret_t_6]]
+        local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
+                                                L1=L1,L2=L2,V1=V1,V2=V2,Va=Va, Vb=Vb, rCentrifuge=Rcentrifuge,\
+                                                accelTab=AccTable, retardTab=RetTable)
+    else:
+        #if not, just make a default
+        local_spintest_object=spintestModule.SpinTest()
+
         
-        
-    local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
-                                            L1=L1,L2=L2,V1=V1,V2=V2,Va=Va, Vb=Vb, rCentrifuge=Rcentrifuge,\
-                                            accelTab=AccTable, retardTab=RetTable)
+        #ensure spintimes are provided as number of minutes
+        #Can be changed in frontend, but due to difficulties finding a good way to enter a time that is not a time of day
+        #THe decision was made to enter it as a number of minutes. 
+        spintimes_min=spintimes
+            
+           
     
     
     
@@ -312,7 +322,7 @@ def create_spintest_object():
 
 #When the endpoint /find_flowrate is accessed, this function will create a SpinTestClass object with the user data, and given some separator size KQ will call a method to return the corresponding flowrate to the user. The answer is saved in json format in the global variable "theAnswer" which is then accessed and sent to frontend in respond_to_find_flowrate()
 #@input: Through endpoint, a capacity as KQ.
-#@output: Through endpoint, a vector of 4 flowrates corresponding to the 4 different separation results the user got 
+#@output: Through endpoint, a vector of 4 flowrates [m3/h] corresponding to the 4 different separation results the user got 
 def find_flowrate():
     
     local_spintest_object=create_spintest_object()
@@ -322,11 +332,12 @@ def find_flowrate():
     #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
+    print("Got some incoming data! \n {0}".format(incomingData))
     list_of_the_keys=list(incomingData.keys())
     _KQ=incomingData[list_of_the_keys[0]]
     
 
-    theQ=local_spintest_object.calcQ(KQ=_KQ)
+    theQ=local_spintest_object.calcQ(KQ=_KQ)#m3 per h
     
     print("Ran find Q function.This is the Q")
     print(theQ)
@@ -346,9 +357,9 @@ def fulfill_criteria():
 
 
 
-    #local_spintest_object=create_spintest_object()
+    local_spintest_object=create_spintest_object()
     #For testing purposes:
-    local_spintest_object=spintestModule.SpinTest()
+    #local_spintest_object=spintestModule.SpinTest()
     
     incomingData=request.get_json(force=True)
     
