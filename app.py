@@ -213,7 +213,7 @@ def _process_equipment_properties():
     
     return
 
-# _process_spintest_data()  is the second of the two setup-functions. Once the user has filled out the information about their spintest such as the spintimes, the results etc and clicks "send", this function will take the info and save it in the respective global variable it belongs in.
+# _process_spintest_data()  is the second of the two setup-functions. Once the user has filled out the information about their spintest such as the spintimes, the results etc and clicks "send", this function will take the info and save it in the respective global variable it belongs in. It also changes the setting ""
 #@input:-
 #@output:-
 def _process_spintest_data():
@@ -495,7 +495,7 @@ def calculate_spintimes():
     
     
     return
-
+            
     
     
 
