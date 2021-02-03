@@ -90,6 +90,5 @@ RetTable=[[Ret_rpm_1, Ret_rpm_2, Ret_rpm_3, Ret_rpm_4, Ret_rpm_5, Ret_rpm_6],[Re
 spintimes_min=spintimes
     
     
-local_spintest_object=spintestModule.SpinTest(spinTimes=spintimes_min,Nstart=Nstarts,speeds=Speeds,residualSol=ResidualSolids,\
-                                        L1=L1,L2=L2,V1=V1,V2=V2,Va=Va, Vb=Vb, rCentrifuge=Rcentrifuge,\
-                                        accelTab=AccTable, retardTab=RetTable)
+local_spintest_object=spintestModule.SpinTest()
+print(local_spintest_object)
